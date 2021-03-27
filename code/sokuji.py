@@ -54,7 +54,7 @@ def get_name():
 
     GAP = 8
 
-    image = Image.open("mk_test3.jpg")
+    image = Image.open("..\data\mk_test3.jpg")
     x, y = START_X_NAME, START_Y_NAME
     s, t = START_X_SCORE, START_Y_SCORE
     names = []
@@ -68,8 +68,8 @@ def get_name():
         t += HEIGHT_SCORE + GAP
 
     for i in range(len(names)):
-        optimize(names[i]).save('test{}.jpg'.format(i))
-        optimize(scores[i]).save('image{}.jpg'.format(i))
+        optimize(names[i]).save('..\data\Test{}.jpg'.format(i))
+        optimize(scores[i]).save('..\data\Image{}.jpg'.format(i))
         recognize(optimize(names[i]), 'jpn')
         recognize(optimize(scores[i]), 'letsgodigital')
 
