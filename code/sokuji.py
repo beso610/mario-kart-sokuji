@@ -31,24 +31,28 @@ def analysis_name(names_image):
     names_extract = []
     for i in range(len(names_image)):
         name_optimized = optimize(names_image[i])
-        name_optimized.save('name{}.jpg'.format(i))
+        #name_optimized.save('name{}.jpg'.format(i))
         names_extract.append(recognize(name_optimized, 'jpn'))
 
     return names_extract
 
 def separate_score():
-    START_X_SCORE = 1695
+    START_X_SCORE = 1696
     START_Y_SCORE = 77
-    WIDTH_SCORE = 160
+    WIDTH_SCORE = 130
     HEIGHT_SCORE = 70
     GAP = 8
-
+    SPLIT = 26
     image = Image.open("mk_test.jpg")
-    s, t = START_X_SCORE, START_Y_SCORE
+    t = START_Y_SCORE
     scores = []
-
     for i in range(12):
-        scores.append(image.crop((s, t, s+WIDTH_SCORE, t+HEIGHT_SCORE)))
+        s = START_X_SCORE
+        score_digit = []
+        for j in range(5):
+            score_digit.append(image.crop((s, t, s+SPLIT, t+HEIGHT_SCORE)))
+            s += SPLIT
+        scores.append(score_digit)
         t += HEIGHT_SCORE + GAP
 
     return scores
@@ -56,8 +60,9 @@ def separate_score():
 def analysis_score(scores_image):
     scores_extract = []
     for i in range(len(scores_image)):
-        score_optimized = optimize(scores_image[i])
-        score_optimized.save('score{}.jpg'.format(i))
+        for j in range(5):
+            score_optimized = optimize(scores_image[i][j])
+            #score_optimized.save('score{}{}.jpg'.format(i, j))
         scores_extract.append(recognize(score_optimized, 'letsgodigital'))
 
     return scores_extract
