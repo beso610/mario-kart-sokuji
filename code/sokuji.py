@@ -10,14 +10,62 @@ def setup_path():
     if path not in path_list:
         os.environ["PATH"] += os.pathsep + path
 
+def separate_name():
+    START_X_NAME = 1010
+    START_Y_NAME = 77
+    WIDTH_NAME = 426
+    HEIGHT_NAME = 70
+    GAP = 8
+
+    image = Image.open("mk_test.jpg")
+    x, y = START_X_NAME, START_Y_NAME
+    names = []
+
+    for i in range(12):
+        names.append(image.crop((x, y, x+WIDTH_NAME, y+HEIGHT_NAME)))
+        y += HEIGHT_NAME + GAP
+
+    return names
+
+def analysis_name(names_image):
+    names_extract = []
+    for i in range(len(names_image)):
+        name_optimized = optimize(names_image[i])
+        name_optimized.save('name{}.jpg'.format(i))
+        names_extract.append(recognize(name_optimized, 'jpn'))
+
+    return names_extract
+
+def separate_score():
+    START_X_SCORE = 1695
+    START_Y_SCORE = 77
+    WIDTH_SCORE = 160
+    HEIGHT_SCORE = 70
+    GAP = 8
+
+    image = Image.open("mk_test.jpg")
+    s, t = START_X_SCORE, START_Y_SCORE
+    scores = []
+
+    for i in range(12):
+        scores.append(image.crop((s, t, s+WIDTH_SCORE, t+HEIGHT_SCORE)))
+        t += HEIGHT_SCORE + GAP
+
+    return scores
+
+def analysis_score(scores_image):
+    scores_extract = []
+    for i in range(len(scores_image)):
+        score_optimized = optimize(scores_image[i])
+        score_optimized.save('score{}.jpg'.format(i))
+        scores_extract.append(recognize(score_optimized, 'letsgodigital'))
+
+    return scores_extract
+
 def optimize(image):
     border = 158
     arr = np.array(image)
-    """
-    print(arr.ndim)
-    print(arr.shape)
-    print(arr.size)
-    """
+
     for i in range(len(arr)):
         for j in range(len(arr[i])):
             pix = arr[i][j]
@@ -37,44 +85,14 @@ def recognize(image, lang):
         image,
         lang=lang,
         builder=pyocr.builders.TextBuilder(tesseract_layout=7))
-    print(text)
 
-def get_name():
-    START_X_NAME = 1010
-    START_Y_NAME = 77
-    WIDTH_NAME = 426
-    HEIGHT_NAME = 70
-
-    START_X_SCORE = 1680
-    #START_X_SCORE = 1750
-    START_Y_SCORE = 77
-    WIDTH_SCORE = 160
-    #WIDTH_SCORE = 90
-    HEIGHT_SCORE = 70
-
-    GAP = 8
-
-    image = Image.open("..\data\\test\mk_test3.jpg")
-    x, y = START_X_NAME, START_Y_NAME
-    s, t = START_X_SCORE, START_Y_SCORE
-    names = []
-    scores = []
-    for i in range(12):
-        names.append(image.crop((x, y, x+WIDTH_NAME, y+HEIGHT_NAME)))
-        y += HEIGHT_NAME + GAP
-
-    for i in range(12):
-        scores.append(image.crop((s, t, s+WIDTH_SCORE, t+HEIGHT_SCORE)))
-        t += HEIGHT_SCORE + GAP
-
-    for i in range(len(names)):
-        optimize(names[i]).save('..\data\\name\\name{}.jpg'.format(i))
-        optimize(scores[i]).save('..\data\score\score{}.jpg'.format(i))
-        recognize(optimize(names[i]), 'jpn')
-        recognize(optimize(scores[i]), 'letsgodigital')
+    return text
 
 
 if __name__ == "__main__":
     setup_path()
-    get_name()
+    names_image = separate_name()
+    scores_image = separate_score()
+    names_extract = analysis_name(names_image)
+    scores_extract = analysis_score(scores_image)
 
