@@ -71,7 +71,18 @@ def analysis_score(scores_image):
     return scores_extract
 
 def calculate_score(scores):
-    scores = scores
+    scores_img = scores
+    digit = len(scores_img)
+    score = 0
+    for i, l in enumerate(scores_img):
+        num = check_number(l)
+        score += num * 10**(digit-i-1)
+
+    return score
+
+def check_number(img):
+
+
 
 
 def optimize(image):
