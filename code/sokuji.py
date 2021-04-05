@@ -43,7 +43,7 @@ def separate_score():
     HEIGHT_SCORE = 70
     GAP = 8
     SPLIT = 26
-    image = Image.open("mk_test.jpg")
+    image = Image.open("mk_test3.jpg")
     t = START_Y_SCORE
     scores = []
     for i in range(12):
@@ -77,26 +77,79 @@ def calculate_score(scores):
     for i, l in enumerate(scores_img):
         num = check_number(l)
         score += num * 10**(digit-i-1)
-
+    print(score)
     return score
 
 def check_number(img):
+    arr = np.array(img)
+    dig = [0 for i in range(7)]
 
+    if len(arr) < 30:
+        return 0
 
+    if all(arr[2][12] == [0, 0, 0]):
+        dig[0] = 1
+    if all(arr[9][20] == [0, 0, 0]):
+        dig[1] = 1
+    if all(arr[23][20] == [0, 0, 0]):
+        dig[2] = 1
+    if all(arr[30][12] == [0, 0, 0]):
+        dig[3] = 1
+    if all(arr[23][4] == [0, 0, 0]):
+        dig[4] = 1
+    if all(arr[9][4] == [0, 0, 0]):
+        dig[5] = 1
+    if all(arr[16][12] == [0, 0, 0]):
+        dig[6] = 1
 
+    num = pattern_match_number(dig)
+    return num
+
+def pattern_match_number(dig):
+    if dig == [1, 1, 1, 1, 1, 1, 0]:
+        return 0
+    elif dig == [1, 1, 0, 1, 1, 0, 1]:
+        return 2
+    elif dig == [1, 1, 1, 1, 0, 0, 1]:
+        return 3
+    elif dig == [0, 1, 1, 0, 0, 1, 1]:
+        return 4
+    elif dig == [1, 0, 1, 1, 0, 1, 1]:
+        return 5
+    elif dig == [1, 0, 1, 1, 1, 1, 1]:
+        return 6
+    elif dig == [1, 1, 1, 0, 0, 0, 0]:
+        return 7
+    elif dig == [1, 1, 1, 1, 1, 1, 1]:
+        return 8
+    elif dig == [1, 1, 1, 1, 0, 1, 1]:
+        return 9
+    else:
+        return 1
 
 def optimize(image):
     border = 158
     arr = np.array(image)
-
+    start = -1
     for i in range(len(arr)):
         for j in range(len(arr[i])):
             pix = arr[i][j]
             if pix[0] < border or pix[1] < border or pix[2] < border: # 暗めの色は白に
                 arr[i][j] = [255, 255, 255]
             elif pix[0] >= border or pix[1] >= border or pix[2] >= border: # 白文字は黒に
+                if start == -1:
+                    start = i
                 arr[i][j] = [0, 0, 0]
-    return Image.fromarray(arr)
+
+    arr_rm_upper = arr[start:]
+    """
+    for i in range(len(arr_rm_upper)):
+        for j in range(len(arr_rm_upper[i])):
+            if arr_rm_upper[i, j, 0] == 0:
+                print(i, j)
+    print("---")
+    """
+    return Image.fromarray(arr_rm_upper)
 
 def recognize(image, lang):
     tools = pyocr.get_available_tools()
@@ -114,8 +167,8 @@ def recognize(image, lang):
 
 if __name__ == "__main__":
     setup_path()
-    names_image = separate_name()
+    #names_image = separate_name()
     scores_image = separate_score()
-    names_extract = analysis_name(names_image)
+    #names_extract = analysis_name(names_image)
     scores_extract = analysis_score(scores_image)
 
