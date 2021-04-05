@@ -44,6 +44,7 @@ def separate_score():
     GAP = 8
     SPLIT = 26
     image = Image.open("mk_test3.jpg")
+    #image = Image.open('mk_test4.png').convert('RGB').save('mk_test4.jpg')
     t = START_Y_SCORE
     scores = []
     for i in range(12):
@@ -63,7 +64,7 @@ def analysis_score(scores_image):
         scores_tmp = []
         for j in range(5):
             score_optimized = optimize(scores_image[i][j])
-            #score_optimized.save('score{}{}.jpg'.format(i, j))
+            score_optimized.save('score{}{}.jpg'.format(i, j))
             scores_tmp.append(score_optimized)
         #scores_extract.append(recognize(score_optimized, 'letsgodigital'))
         scores_extract.append(calculate_score(scores_tmp))
@@ -105,6 +106,7 @@ def check_number(img):
     num = pattern_match_number(dig)
     return num
 
+
 def pattern_match_number(dig):
     if dig == [1, 1, 1, 1, 1, 1, 0]:
         return 0
@@ -129,27 +131,25 @@ def pattern_match_number(dig):
 
 def optimize(image):
     border = 158
-    arr = np.array(image)
     start = -1
+    arr = np.array(image)
     for i in range(len(arr)):
         for j in range(len(arr[i])):
             pix = arr[i][j]
             if pix[0] < border or pix[1] < border or pix[2] < border: # 暗めの色は白に
-                arr[i][j] = [255, 255, 255]
+                arr[i][j][0] = 255
+                arr[i][j][1] = 255
+                arr[i][j][2] = 255
             elif pix[0] >= border or pix[1] >= border or pix[2] >= border: # 白文字は黒に
                 if start == -1:
                     start = i
-                arr[i][j] = [0, 0, 0]
+                arr[i][j][0] = 0
+                arr[i][j][1] = 0
+                arr[i][j][2] = 0
 
     arr_rm_upper = arr[start:]
-    """
-    for i in range(len(arr_rm_upper)):
-        for j in range(len(arr_rm_upper[i])):
-            if arr_rm_upper[i, j, 0] == 0:
-                print(i, j)
-    print("---")
-    """
     return Image.fromarray(arr_rm_upper)
+
 
 def recognize(image, lang):
     tools = pyocr.get_available_tools()
