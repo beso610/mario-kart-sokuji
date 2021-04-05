@@ -60,12 +60,19 @@ def separate_score():
 def analysis_score(scores_image):
     scores_extract = []
     for i in range(len(scores_image)):
+        scores_tmp = []
         for j in range(5):
             score_optimized = optimize(scores_image[i][j])
             #score_optimized.save('score{}{}.jpg'.format(i, j))
-        scores_extract.append(recognize(score_optimized, 'letsgodigital'))
+            scores_tmp.append(score_optimized)
+        #scores_extract.append(recognize(score_optimized, 'letsgodigital'))
+        scores_extract.append(calculate_score(scores_tmp))
 
     return scores_extract
+
+def calculate_score(scores):
+    scores = scores
+
 
 def optimize(image):
     border = 158
