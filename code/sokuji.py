@@ -198,9 +198,16 @@ def recognize(image, lang):
 
     return text
 
+def user_input():
+    print("タグ名をスペース区切りで入力してください.")
+    tags = list(map(str, input().split()))
+    if (len(tags) != 2) and (len(tags) != 3) and (len(tags) != 4) and (len(tags) != 6):
+        print("数が合いません. 正しく入力してください.")
+        exit()
 
 if __name__ == "__main__":
     setup_path()
+    user_input()
     names_image = separate_name()
     scores_image = separate_score()
     names_extract = analysis_name(names_image)
