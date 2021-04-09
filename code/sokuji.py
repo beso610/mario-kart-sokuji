@@ -18,8 +18,9 @@ def separate_name():
     HEIGHT_NAME = 70
     GAP = 8
     #path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/Screenshot 2021-04-10 00-43-21.png')
-    path_in = 'D:マリオカート/Screenshot 2021-04-10 00-43-21.png'
-    image = Image.open(path_in)
+    #path_in = 'D:マリオカート/Screenshot 2021-04-10 00-43-21.png'
+    #image = Image.open(path_in)
+    image = Image.open(sys.argv[-1])
     x, y = START_X_NAME, START_Y_NAME
     names = []
 
@@ -39,6 +40,9 @@ def analysis_name(names_image):
     print(names_extract)
     return names_extract
 
+def normalize_name(names_extract):
+    return names_extract
+
 def separate_score():
     START_X_SCORE = 1696
     START_Y_SCORE = 77
@@ -47,8 +51,9 @@ def separate_score():
     GAP = 8
     SPLIT = 26
     #path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/Screenshot 2021-04-10 00-43-21.png')
-    path_in = 'D:マリオカート/Screenshot 2021-04-10 00-43-21.png'
-    image = Image.open(path_in)
+    #path_in = 'D:マリオカート/Screenshot 2021-04-10 00-43-21.png'
+    #image = Image.open(path_in)
+    image = Image.open(sys.argv[-1])
     #image = Image.open('mk_test4.png').convert('RGB').save('mk_test4.jpg')
     t = START_Y_SCORE
     scores = []
@@ -75,10 +80,6 @@ def analysis_score(scores_image):
         #scores_extract.append(recognize(score_optimized, 'letsgodigital'))
         scores_extract.append(calculate_score(scores_tmp))
 
-    return normalize_name(scores_extract)
-
-
-def normalize_name(scores_extract):
     return scores_extract
 
 def calculate_score(scores):
@@ -88,7 +89,7 @@ def calculate_score(scores):
     for i, l in enumerate(scores_img):
         num = check_number(l)
         score += num * 10**(digit-i-1)
-    print(score)
+    #print(score)
     return score
 
 def check_number(img):
