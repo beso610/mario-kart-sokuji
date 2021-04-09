@@ -16,7 +16,7 @@ def separate_name():
     WIDTH_NAME = 426
     HEIGHT_NAME = 70
     GAP = 8
-    path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/mk_test.jpg')
+    path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/mk_test3.jpg')
     image = Image.open(path_in)
     x, y = START_X_NAME, START_Y_NAME
     names = []
@@ -31,10 +31,10 @@ def analysis_name(names_image):
     names_extract = []
     path_out = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/name')
     for i in range(len(names_image)):
-        name_optimized = optimize(names_image[i])
-        #name_optimized.save(path_out + '/name{}.jpg'.format(i))
+        name_optimized = optimize(names_image[i], 0)
+        name_optimized.save(path_out + '/name{}.jpg'.format(i))
         names_extract.append(recognize(name_optimized, 'jpn'))
-
+    print(names_extract)
     return names_extract
 
 def separate_score():
@@ -44,7 +44,7 @@ def separate_score():
     HEIGHT_SCORE = 70
     GAP = 8
     SPLIT = 26
-    path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/mk_test.jpg')
+    path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/mk_test3.jpg')
     image = Image.open(path_in)
     #image = Image.open('mk_test4.png').convert('RGB').save('mk_test4.jpg')
     t = START_Y_SCORE
@@ -66,7 +66,7 @@ def analysis_score(scores_image):
     for i in range(len(scores_image)):
         scores_tmp = []
         for j in range(5):
-            score_optimized = optimize(scores_image[i][j])
+            score_optimized = optimize(scores_image[i][j], 1)
             score_optimized.save(path_out + '/score{}{}.jpg'.format(i, j))
             scores_tmp.append(score_optimized)
         #scores_extract.append(recognize(score_optimized, 'letsgodigital'))
@@ -132,10 +132,39 @@ def pattern_match_number(dig):
     else:
         return 1
 
-def optimize(image):
+def optimize(image, type):
+    arr = np.array(image)
+    if (200 < arr[0][0][0]) and (200 < arr[0][0][1]):
+        return optimize_me(arr, type)
+    else:
+        return optimize_other(arr, type)
+
+def optimize_me(arr, type):
+    border = 200
+    start = -1
+    for i in range(len(arr)):
+        for j in range(len(arr[i])):
+            pix = arr[i][j]
+            if (border < pix[0]) and (border < pix[1]): # 黄色は白に
+                arr[i][j][0] = 255
+                arr[i][j][1] = 255
+                arr[i][j][2] = 255
+            elif (border >= pix[0]) or (border >= pix[1]): # 黒文字は黒に
+                if start == -1:
+                    start = i
+                arr[i][j][0] = 0
+                arr[i][j][1] = 0
+                arr[i][j][2] = 0
+
+    if type == 1: #スコアのときは上の余白を削る
+        arr_rm_upper = arr[start:]
+        return Image.fromarray(arr_rm_upper)
+    else: #名前の時は何もしない
+        return Image.fromarray(arr)
+
+def optimize_other(arr, type):
     border = 158
     start = -1
-    arr = np.array(image)
     for i in range(len(arr)):
         for j in range(len(arr[i])):
             pix = arr[i][j]
@@ -150,9 +179,11 @@ def optimize(image):
                 arr[i][j][1] = 0
                 arr[i][j][2] = 0
 
-    arr_rm_upper = arr[start:]
-    return Image.fromarray(arr_rm_upper)
-
+    if type == 1: #スコアのときは上の余白を削る
+        arr_rm_upper = arr[start:]
+        return Image.fromarray(arr_rm_upper)
+    else: #名前の時は何もしない
+        return Image.fromarray(arr)
 
 def recognize(image, lang):
     tools = pyocr.get_available_tools()
@@ -170,8 +201,8 @@ def recognize(image, lang):
 
 if __name__ == "__main__":
     setup_path()
-    #names_image = separate_name()
+    names_image = separate_name()
     scores_image = separate_score()
-    #names_extract = analysis_name(names_image)
+    names_extract = analysis_name(names_image)
     scores_extract = analysis_score(scores_image)
 
