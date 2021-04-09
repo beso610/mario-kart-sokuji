@@ -16,8 +16,8 @@ def separate_name():
     WIDTH_NAME = 426
     HEIGHT_NAME = 70
     GAP = 8
-
-    image = Image.open("mk_test.jpg")
+    path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/mk_test.jpg')
+    image = Image.open(path_in)
     x, y = START_X_NAME, START_Y_NAME
     names = []
 
@@ -29,9 +29,10 @@ def separate_name():
 
 def analysis_name(names_image):
     names_extract = []
+    path_out = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/name')
     for i in range(len(names_image)):
         name_optimized = optimize(names_image[i])
-        #name_optimized.save('name{}.jpg'.format(i))
+        #name_optimized.save(path_out + '/name{}.jpg'.format(i))
         names_extract.append(recognize(name_optimized, 'jpn'))
 
     return names_extract
@@ -43,7 +44,8 @@ def separate_score():
     HEIGHT_SCORE = 70
     GAP = 8
     SPLIT = 26
-    image = Image.open("mk_test3.jpg")
+    path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/mk_test.jpg')
+    image = Image.open(path_in)
     #image = Image.open('mk_test4.png').convert('RGB').save('mk_test4.jpg')
     t = START_Y_SCORE
     scores = []
@@ -60,11 +62,12 @@ def separate_score():
 
 def analysis_score(scores_image):
     scores_extract = []
+    path_out = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/score')
     for i in range(len(scores_image)):
         scores_tmp = []
         for j in range(5):
             score_optimized = optimize(scores_image[i][j])
-            score_optimized.save('score{}{}.jpg'.format(i, j))
+            score_optimized.save(path_out + '/score{}{}.jpg'.format(i, j))
             scores_tmp.append(score_optimized)
         #scores_extract.append(recognize(score_optimized, 'letsgodigital'))
         scores_extract.append(calculate_score(scores_tmp))
