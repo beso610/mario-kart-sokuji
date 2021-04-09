@@ -3,6 +3,7 @@ import sys
 import pyocr, pyocr.builders
 import numpy as np
 from PIL import Image
+from difflib import SequenceMatcher
 
 def setup_path():
     path = "C:\\Program Files\\Tesseract-OCR" # Tesseractのパス
@@ -16,7 +17,7 @@ def separate_name():
     WIDTH_NAME = 426
     HEIGHT_NAME = 70
     GAP = 8
-    path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/mk_test3.jpg')
+    path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/mk_test2.jpg')
     image = Image.open(path_in)
     x, y = START_X_NAME, START_Y_NAME
     names = []
@@ -34,7 +35,7 @@ def analysis_name(names_image):
         name_optimized = optimize(names_image[i], 0)
         name_optimized.save(path_out + '/name{}.jpg'.format(i))
         names_extract.append(recognize(name_optimized, 'jpn'))
-    print(names_extract)
+    #print(names_extract)
     return names_extract
 
 def separate_score():
@@ -44,7 +45,7 @@ def separate_score():
     HEIGHT_SCORE = 70
     GAP = 8
     SPLIT = 26
-    path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/mk_test3.jpg')
+    path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/mk_test2.jpg')
     image = Image.open(path_in)
     #image = Image.open('mk_test4.png').convert('RGB').save('mk_test4.jpg')
     t = START_Y_SCORE
@@ -72,6 +73,10 @@ def analysis_score(scores_image):
         #scores_extract.append(recognize(score_optimized, 'letsgodigital'))
         scores_extract.append(calculate_score(scores_tmp))
 
+    return normalize_name(scores_extract)
+
+
+def normalize_name(scores_extract):
     return scores_extract
 
 def calculate_score(scores):
@@ -81,7 +86,7 @@ def calculate_score(scores):
     for i, l in enumerate(scores_img):
         num = check_number(l)
         score += num * 10**(digit-i-1)
-    print(score)
+    #print(score)
     return score
 
 def check_number(img):
@@ -140,7 +145,7 @@ def optimize(image, type):
         return optimize_other(arr, type)
 
 def optimize_me(arr, type):
-    border = 200
+    border = 160
     start = -1
     for i in range(len(arr)):
         for j in range(len(arr[i])):
@@ -194,7 +199,7 @@ def recognize(image, lang):
     text = tools[0].image_to_string(
         image,
         lang=lang,
-        builder=pyocr.builders.TextBuilder(tesseract_layout=7))
+        builder=pyocr.builders.TextBuilder(tesseract_layout=6))
 
     return text
 
@@ -204,12 +209,49 @@ def user_input():
     if (len(tags) != 2) and (len(tags) != 3) and (len(tags) != 4) and (len(tags) != 6):
         print("数が合いません. 正しく入力してください.")
         exit()
+    return tags
+
+def classify_name(tags, names_extract):
+    classify_dict = dict()
+    for i in range(len(tags)):
+        src = tags[i]
+        max_r = [0, 0]
+        max_index = [-1, -1]
+        for j in range(len(names_extract)):
+            trg = names_extract[j]
+            s_len, t_len = len(src), len(trg)
+            r = max([SequenceMatcher(None, src, trg[i:i+s_len]).ratio() for i in range(t_len-s_len+1)])
+            if r > max_r[0]:
+                max_r[1] = max_r[0]
+                max_index[1] = max_index[0]
+                max_r[0] = r
+                max_index[0] = j
+            elif r >= max_r[1]:
+                max_r[1] = r
+                max_index[1] = j
+        classify_dict[src] = [max_index[i] for i in range(2)]
+
+    return classify_dict
+
+def calculate_sokuji(classify_dict, scores_extract):
+    sokuji_dict = dict()
+    for key, value in classify_dict.items():
+        sokuji_dict[key] = scores_extract[value[0]] + scores_extract[value[1]]
+
+    sokuji_sorted = sorted(sokuji_dict.items(), key=lambda x:x[1], reverse=True)
+    print("")
+    for i in range(len(sokuji_sorted)):
+        s = sokuji_sorted[i]
+        print(s[0] + " " + str(s[1]) + " / ", end="")
+    print("\n")
 
 if __name__ == "__main__":
     setup_path()
-    user_input()
+    tags = user_input()
     names_image = separate_name()
     scores_image = separate_score()
     names_extract = analysis_name(names_image)
     scores_extract = analysis_score(scores_image)
+    classify_dict = classify_name(tags, names_extract)
+    calculate_sokuji(classify_dict, scores_extract)
 
