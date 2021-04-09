@@ -236,8 +236,9 @@ def classify_name(tags, names_extract):
 def calculate_sokuji(classify_dict, scores_extract):
     sokuji_dict = dict()
     for key, value in classify_dict.items():
-        sokuji_dict[key] = scores_extract[value[0]] + scores_extract[value[1]]
-
+        sokuji_dict[key] = 0
+        for l in value:
+            sokuji_dict[key] += scores_extract[l]
     sokuji_sorted = sorted(sokuji_dict.items(), key=lambda x:x[1], reverse=True)
     print("")
     for i in range(len(sokuji_sorted)):
