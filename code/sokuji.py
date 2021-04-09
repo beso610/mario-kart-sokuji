@@ -17,7 +17,8 @@ def separate_name():
     WIDTH_NAME = 426
     HEIGHT_NAME = 70
     GAP = 8
-    path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/mk_test2.jpg')
+    #path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/Screenshot 2021-04-10 00-43-21.png')
+    path_in = 'D:マリオカート/Screenshot 2021-04-10 00-43-21.png'
     image = Image.open(path_in)
     x, y = START_X_NAME, START_Y_NAME
     names = []
@@ -35,7 +36,7 @@ def analysis_name(names_image):
         name_optimized = optimize(names_image[i], 0)
         name_optimized.save(path_out + '/name{}.jpg'.format(i))
         names_extract.append(recognize(name_optimized, 'jpn'))
-    #print(names_extract)
+    print(names_extract)
     return names_extract
 
 def separate_score():
@@ -45,7 +46,8 @@ def separate_score():
     HEIGHT_SCORE = 70
     GAP = 8
     SPLIT = 26
-    path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/mk_test2.jpg')
+    #path_in = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/test/Screenshot 2021-04-10 00-43-21.png')
+    path_in = 'D:マリオカート/Screenshot 2021-04-10 00-43-21.png'
     image = Image.open(path_in)
     #image = Image.open('mk_test4.png').convert('RGB').save('mk_test4.jpg')
     t = START_Y_SCORE
@@ -86,7 +88,7 @@ def calculate_score(scores):
     for i, l in enumerate(scores_img):
         num = check_number(l)
         score += num * 10**(digit-i-1)
-    #print(score)
+    print(score)
     return score
 
 def check_number(img):
