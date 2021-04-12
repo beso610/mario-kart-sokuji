@@ -216,23 +216,27 @@ def user_input():
 
 def classify_name(tags, names_extract):
     classify_dict = dict()
+    member_len = 12 // len(tags)
     for i in range(len(tags)):
         src = tags[i]
-        max_r = [0, 0]
-        max_index = [-1, -1]
+        max_r = [0 for k in range(member_len)]
+        max_index = [-1 for k in range(member_len)]
         for j in range(len(names_extract)):
             trg = names_extract[j]
             s_len, t_len = len(src), len(trg)
             r = max([SequenceMatcher(None, src, trg[i:i+s_len]).ratio() for i in range(t_len-s_len+1)])
-            if r > max_r[0]:
-                max_r[1] = max_r[0]
-                max_index[1] = max_index[0]
-                max_r[0] = r
-                max_index[0] = j
-            elif r >= max_r[1]:
-                max_r[1] = r
-                max_index[1] = j
-        classify_dict[src] = [max_index[i] for i in range(2)]
+            for k in range(member_len):
+                if r > max_r[k]:
+                    if k < (member_len - 1):
+                        max_r[k+1] = max_r[k]
+                        max_index[k+1] = max_index[k]
+                        max_r[k] = r
+                        max_index[k] = j
+                        break
+                    else:
+                        max_r[k] = r
+                        max_index[k] = j
+        classify_dict[src] = [max_index[i] for i in range(member_len)]
 
     return classify_dict
 
