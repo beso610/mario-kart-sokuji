@@ -229,26 +229,31 @@ def SequenceMatcher_append_zero(src, trg):
 def classify_name(tags, names_extract):
     classify_dict = dict()
     member_len = 12 // len(tags)
+    choose_list = [0 for i in range(12)]
     for i in range(len(tags)):
         src = tags[i].upper()
         max_r = [0 for k in range(member_len)]
         max_index = [-1 for k in range(member_len)]
         for j in range(len(names_extract)):
-            trg = names_extract[j].upper()
-            s_len, t_len = len(src), len(trg)
-            r = max(SequenceMatcher_append_zero(src, trg))
-            for k in range(member_len):
-                if r > max_r[k]:
-                    if k < (member_len - 1):
-                        max_r[k+1] = max_r[k]
-                        max_index[k+1] = max_index[k]
-                        max_r[k] = r
-                        max_index[k] = j
-                        break
-                    else:
-                        max_r[k] = r
-                        max_index[k] = j
+            if choose_list[j] == 0:
+                trg = names_extract[j].upper()
+                s_len, t_len = len(src), len(trg)
+                r = max(SequenceMatcher_append_zero(src, trg))
+                for k in range(member_len):
+                    if r > max_r[k]:
+                        if k < (member_len - 1):
+                            max_r[k+1] = max_r[k]
+                            max_index[k+1] = max_index[k]
+                            max_r[k] = r
+                            max_index[k] = j
+                            break
+                        else:
+                            max_r[k] = r
+                            max_index[k] = j
         classify_dict[tags[i]] = [max_index[i] for i in range(member_len)]
+        for t in range(member_len):
+            choose_list[max_index[t]] = 1
+
 
     return classify_dict
 
