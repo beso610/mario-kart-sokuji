@@ -75,7 +75,7 @@ def analysis_score(scores_image):
         scores_tmp = []
         for j in range(5):
             score_optimized = optimize(scores_image[i][j], 1)
-            #score_optimized.save(path_out + '/score{}{}.jpg'.format(i, j))
+            score_optimized.save(path_out + '/score{}{}.jpg'.format(i, j))
             scores_tmp.append(score_optimized)
         #scores_extract.append(recognize(score_optimized, 'letsgodigital'))
         scores_extract.append(calculate_score(scores_tmp))
@@ -96,6 +96,7 @@ def calculate_score(scores):
 def check_number(img):
     arr = np.array(img)
     dig = [0 for i in range(7)]
+    judge_one = 0
 
     if len(arr) < 30:
         return 0
@@ -114,12 +115,14 @@ def check_number(img):
         dig[5] = 1
     if all(arr[16][12] == [0, 0, 0]):
         dig[6] = 1
+    if all(arr[7][12] == [0, 0, 0]):
+        judge_one = 1
 
-    num = pattern_match_number(dig)
+    num = pattern_match_number(dig, judge_one)
     return num
 
 
-def pattern_match_number(dig):
+def pattern_match_number(dig, judge_one):
     if dig == [1, 1, 1, 1, 1, 1, 0]:
         return 0
     elif dig == [1, 1, 0, 1, 1, 0, 1]:
@@ -138,8 +141,10 @@ def pattern_match_number(dig):
         return 8
     elif dig == [1, 1, 1, 1, 0, 1, 1]:
         return 9
-    else:
+    elif judge_one == 1:
         return 1
+    else:
+        return 0
 
 def optimize(image, type):
     arr = np.array(image)
