@@ -35,7 +35,7 @@ def analysis_name(names_image):
     path_out = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/name')
     for i in range(len(names_image)):
         name_optimized = optimize(names_image[i], 0)
-        name_optimized.save(path_out + '/name{}.jpg'.format(i))
+        #name_optimized.save(path_out + '/name{}.jpg'.format(i))
         names_extract.append(recognize(name_optimized, 'jpn'))
     print(names_extract)
     return names_extract
@@ -75,10 +75,11 @@ def analysis_score(scores_image):
         scores_tmp = []
         for j in range(5):
             score_optimized = optimize(scores_image[i][j], 1)
-            score_optimized.save(path_out + '/score{}{}.jpg'.format(i, j))
+            #score_optimized.save(path_out + '/score{}{}.jpg'.format(i, j))
             scores_tmp.append(score_optimized)
         #scores_extract.append(recognize(score_optimized, 'letsgodigital'))
         scores_extract.append(calculate_score(scores_tmp))
+    print(scores_extract)
 
     return scores_extract
 
@@ -214,30 +215,41 @@ def user_input():
         exit()
     return tags
 
+def SequenceMatcher_append_zero(src, trg):
+    s_len, t_len = len(src), len(trg)
+    l = [SequenceMatcher(None, src, trg[i:i+s_len]).ratio() for i in range(t_len-s_len+1)]
+    l.append(0)
+    return l
+
 def classify_name(tags, names_extract):
     classify_dict = dict()
+    member_len = 12 // len(tags)
     for i in range(len(tags)):
-        src = tags[i]
-        max_r = [0, 0]
-        max_index = [-1, -1]
+        src = tags[i].upper()
+        max_r = [0 for k in range(member_len)]
+        max_index = [-1 for k in range(member_len)]
         for j in range(len(names_extract)):
-            trg = names_extract[j]
+            trg = names_extract[j].upper()
             s_len, t_len = len(src), len(trg)
-            r = max([SequenceMatcher(None, src, trg[i:i+s_len]).ratio() for i in range(t_len-s_len+1)])
-            if r > max_r[0]:
-                max_r[1] = max_r[0]
-                max_index[1] = max_index[0]
-                max_r[0] = r
-                max_index[0] = j
-            elif r >= max_r[1]:
-                max_r[1] = r
-                max_index[1] = j
-        classify_dict[src] = [max_index[i] for i in range(2)]
+            r = max(SequenceMatcher_append_zero(src, trg))
+            for k in range(member_len):
+                if r > max_r[k]:
+                    if k < (member_len - 1):
+                        max_r[k+1] = max_r[k]
+                        max_index[k+1] = max_index[k]
+                        max_r[k] = r
+                        max_index[k] = j
+                        break
+                    else:
+                        max_r[k] = r
+                        max_index[k] = j
+        classify_dict[tags[i]] = [max_index[i] for i in range(member_len)]
 
     return classify_dict
 
 def calculate_sokuji(classify_dict, scores_extract):
     sokuji_dict = dict()
+    #print(classify_dict)
     for key, value in classify_dict.items():
         sokuji_dict[key] = 0
         for l in value:
