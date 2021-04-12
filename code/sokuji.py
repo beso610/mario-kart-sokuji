@@ -225,9 +225,12 @@ def classify_name(tags, names_extract):
         for j in range(len(names_extract)):
             trg = names_extract[j].upper()
             s_len, t_len = len(src), len(trg)
-            #print("src: {0}, trg: {1}".format(src, trg))
-            r = max([SequenceMatcher(None, src, trg[i:i+s_len]).ratio() for i in range(t_len-s_len+1)])
-            #print(r)
+            print("src: {0}, trg: {1}".format(src, trg))
+            l = [SequenceMatcher(None, src, trg[i:i+s_len]).ratio() for i in range(t_len-s_len+1)]
+            print(l)
+            r = max(l)
+            #r = max([SequenceMatcher(None, src, trg[i:i+s_len]).ratio() for i in range(t_len-s_len+1)])
+            print(r)
             for k in range(member_len):
                 if r > max_r[k]:
                     if k < (member_len - 1):
