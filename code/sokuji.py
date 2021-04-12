@@ -215,6 +215,12 @@ def user_input():
         exit()
     return tags
 
+def SequenceMatcher_append_zero(src, trg):
+    s_len, t_len = len(src), len(trg)
+    l = [SequenceMatcher(None, src, trg[i:i+s_len]).ratio() for i in range(t_len-s_len+1)]
+    l.append(0)
+    return l
+
 def classify_name(tags, names_extract):
     classify_dict = dict()
     member_len = 12 // len(tags)
@@ -225,9 +231,7 @@ def classify_name(tags, names_extract):
         for j in range(len(names_extract)):
             trg = names_extract[j].upper()
             s_len, t_len = len(src), len(trg)
-            #print("src: {0}, trg: {1}".format(src, trg))
-            r = max([SequenceMatcher(None, src, trg[i:i+s_len]).ratio() for i in range(t_len-s_len+1)])
-            #print(r)
+            r = max(SequenceMatcher_append_zero(src, trg))
             for k in range(member_len):
                 if r > max_r[k]:
                     if k < (member_len - 1):
