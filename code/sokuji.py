@@ -230,11 +230,11 @@ def classify_name(tags, names_extract):
     classify_dict = dict()
     member_len = 12 // len(tags)
     choose_list = [0 for i in range(12)]
-    for i in range(len(tags)):
+    for i in range(len(tags)): # タグごとにループ
         src = tags[i].upper()
         max_r = [0 for k in range(member_len)]
         max_index = [-1 for k in range(member_len)]
-        for j in range(len(names_extract)):
+        for j in range(len(names_extract)): # 12回ループ
             if choose_list[j] == 0:
                 trg = names_extract[j].upper()
                 s_len, t_len = len(src), len(trg)
@@ -250,16 +250,22 @@ def classify_name(tags, names_extract):
                         else:
                             max_r[k] = r
                             max_index[k] = j
-        classify_dict[tags[i]] = [max_index[i] for i in range(member_len)]
-        for t in range(member_len):
-            choose_list[max_index[t]] = 1
 
+        for j in range(member_len):
+            if max_index[j] != -1: # タグとマッチする名前があれば選択済リストにフラグを立てる
+                choose_list[max_index[j]] = 1
+            else: # なければ先頭から順にマッチさせる（強制的に）
+                first = choose_list.index(0)
+                max_index[j] = first
+                choose_list[first] = 1
+
+        classify_dict[tags[i]] = [max_index[i] for i in range(member_len)]
 
     return classify_dict
 
 def calculate_sokuji(classify_dict, scores_extract):
     sokuji_dict = dict()
-    #print(classify_dict)
+    print(classify_dict)
     for key, value in classify_dict.items():
         sokuji_dict[key] = 0
         for l in value:
